@@ -2,6 +2,8 @@ const form = document.getElementById('item-form')
 const list = document.getElementById('list')
 const itemInput = document.getElementById('item-name')
 
+let items = []
+
 function createDeleteButton() {
   const deleteButton = document.createElement('button')
   deleteButton.classList.add('delet-icon')
@@ -42,19 +44,22 @@ function createConfirmButton() {
   return confirmButton
 }
 
-form.addEventListener('submit', (event) => {
-  event.preventDefault()
-
+function createLi(itemId, itemTitle, checked) {
   const li = document.createElement('li')
+  li.setAttribute('data-id', itemId)
 
   const itemTitleDiv = document.createElement('div')
   itemTitleDiv.classList.add('task')
 
   const itemTitleInput = document.createElement('input')
   itemTitleInput.setAttribute('type', 'checkbox')
+  if (checked) {
+    itemTitleInput.setAttribute('checked', checked)
+    li.classList.add('checked')
+  }
 
   const itemTitleSpan = document.createElement('span')
-  itemTitleSpan.textContent = itemInput.value
+  itemTitleSpan.textContent = itemTitle
 
   itemTitleInput.addEventListener('change', checkedItem)
 
@@ -73,23 +78,27 @@ form.addEventListener('submit', (event) => {
   editButton.addEventListener('click', edit)
   confirmButton.addEventListener('click', confirm)
 
-  if (!itemInput.value) {
-    return null
-  } else {
-    itemTitleDiv.append(itemTitleInput, itemTitleSpan, editItemInput)
-    itemIconsDiv.append(deleteButton, editButton, confirmButton)
-  }
-
+  itemTitleDiv.append(itemTitleInput, itemTitleSpan, editItemInput)
+  itemIconsDiv.append(deleteButton, editButton, confirmButton)
   li.append(itemTitleDiv, itemIconsDiv)
-  list.appendChild(li)
-  clearTaskField()
+
+  return li
 
   function checkedItem() {
     li.classList.toggle('checked')
+    const itemId = Number(li.getAttribute('data-id')) // data-id retorna uma string, por estar sendo buscado do HTML, como os IDs dos itens são todos números, na hora de buscar um item, nenhum id corresponde a uma string, justamente por serem numeros, então não retorna elemento e não modifica a propriedade;
+    const item = items.find((item) => item.id === itemId)
+    item.checked = !item.checked
+
+    localStorage.setItem('items', JSON.stringify(items))
   }
 
   function deleted() {
+    const itemId = Number(li.getAttribute('data-id'))
     li.remove()
+
+    items = items.filter((item) => item.id !== itemId)
+    localStorage.setItem('items', JSON.stringify(items))
   }
 
   function edit() {
@@ -116,9 +125,53 @@ form.addEventListener('submit', (event) => {
     confirmButton.classList.add('hidden')
 
     itemTitleSpan.textContent = editItemInput.value
+
+    const itemId = Number(li.getAttribute('data-id'))
+    const item = items.find((item) => item.id === itemId)
+    item.title = editItemInput.value
+    localStorage.setItem('items', JSON.stringify(items))
+  }
+}
+
+function loadItems() {
+  const itemsFromStorage = localStorage.getItem('items')
+
+  if (!itemsFromStorage) {
+    return
   }
 
-  function clearTaskField() {
-    itemInput.value = ''
+  items = JSON.parse(itemsFromStorage)
+
+  for (const item of items) {
+    const itemsLi = createLi(item.id, item.title, item.checked)
+    list.appendChild(itemsLi)
   }
+}
+
+form.addEventListener('submit', (event) => {
+  event.preventDefault()
+
+  const itemTitle = itemInput.value
+  const itemId = new Date().getTime()
+
+  const li = createLi(itemId, itemTitle, false)
+  if (!itemTitle) {
+    return
+  } else {
+    list.appendChild(li)
+  }
+
+  items.push({
+    id: itemId,
+    title: itemTitle,
+    checked: false,
+  })
+
+  localStorage.setItem('items', JSON.stringify(items))
+  clearTaskField()
 })
+function clearTaskField() {
+  itemInput.value = ''
+}
+
+loadItems()
