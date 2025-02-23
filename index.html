@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>To Do List</title>
+
+    <!-- FONT  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./assets/styles.css" />
+    <script defer src="./assets/script.js"></script>
+  </head>
+  <body>
+    <main>
+      <section>
+        <div class="title-container">
+          <h1>Lista de Tarefas</h1>
+          <img src="./assets/images/calendar.svg" alt="Ícone de calendário" />
+        </div>
+        <form id="item-form">
+          <input
+            type="text"
+            placeholder="O que precisa ser feito?"
+            name="item-name"
+            id="item-name"
+          />
+          <button id="button">Cadastrar</button>
+        </form>
+        <ul id="list"></ul>
+      </section>
+    </main>
+  </body>
+</html>
